@@ -15,13 +15,12 @@ async function bootstrap() {
 
   const configService = app.get(ConfigService);
 
-  // 2. Configurar el Microservicio MQTT
-  // IMPORTANTE: Escuchamos internamente en el 1883. 
-  // Railway redirigirá el tráfico del puerto 23568 (externo) a este.
+  // 2. Configurar el Cliente del Microservicio MQTT
+  // Esto permite al backend suscribirse y recibir mensajes del broker Mosquitto.
   app.connectMicroservice<MicroserviceOptions>({
     transport: Transport.MQTT,
     options: {
-      url: `mqtt://0.0.0.0:1883`, 
+      url: configService.get('MQTT_URL') || `mqtt://127.0.0.1:1883`,
     },
   });
 
@@ -32,7 +31,7 @@ async function bootstrap() {
   // Usamos '0.0.0.0' para asegurar que acepte conexiones externas en Railway
   const port = configService.get('PORT') || 3000;
   await app.listen(port, '0.0.0.0');
-  
+
   console.log(`HTTP API listening on port: ${port}`);
   console.log(`MQTT Microservice listening on port: 1883`);
 }
