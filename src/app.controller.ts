@@ -10,10 +10,4 @@ export class AppController {
   getHello(): string {
     return this.appService.getHello();
   }
-
-  @MessagePattern('test/hello')
-  testMqtt(@Payload() data: any, @Ctx() context: MqttContext) {
-    console.log(`[MQTT] Received message on topic "test/hello":`, data);
-    return `Hello from Backend! Received: ${data}`;
-  }
 }
