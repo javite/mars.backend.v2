@@ -10,13 +10,16 @@ export class MqttService implements OnModuleInit {
 
     constructor(private devicesService: DevicesService) { }
 
-    onModuleInit() {
+    async onModuleInit() {
         this.aedes = new Aedes();
         this.server = net.createServer(this.aedes.handle);
         const port = 1883;
 
-        this.server.listen(port, () => {
-            console.log('MQTT Broker running on port', port);
+        await new Promise<void>((resolve) => {
+            this.server.listen(port, () => {
+                console.log('MQTT Broker running on port', port);
+                resolve();
+            });
         });
 
         this.aedes.authenticate = async (client, username, password, callback) => {
