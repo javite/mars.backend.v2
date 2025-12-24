@@ -21,6 +21,8 @@ async function bootstrap() {
     transport: Transport.MQTT,
     options: {
       url: configService.get('MQTT_URL') || `mqtt://127.0.0.1:1883`,
+      username: configService.get('MQTT_USERNAME'),
+      password: configService.get('MQTT_PASSWORD'),
     },
   });
 
