@@ -27,4 +27,20 @@ export class MqttController {
             console.log(`[MQTT] Received on ${topic}:`, data);
         }
     }
+
+    @MessagePattern('mars/devices/+/data')
+    handleDataResponse(@Payload() data: any, @Ctx() context: MqttContext) {
+        const topic = context.getTopic();
+        const parts = topic.split('/');
+
+        // parts[0] = mars
+        // parts[1] = devices
+        // parts[2] = deviceId
+        // parts[3] = data
+
+        const deviceId = parts[2];
+        console.log("Device Id: ", deviceId);
+        console.log(`[MQTT] Data received on ${topic}:`, data);
+
+    }
 }

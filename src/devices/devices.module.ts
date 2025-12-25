@@ -1,29 +1,14 @@
-import { Module } from '@nestjs/common';
+import { Module, forwardRef } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { Device } from './entities/device.entity';
 import { DevicesService } from './devices.service';
 import { DevicesController } from './devices.controller';
-import { ClientsModule, Transport } from '@nestjs/microservices';
-import { ConfigModule, ConfigService } from '@nestjs/config';
+import { MqttModule } from '../mqtt/mqtt.module';
 
 @Module({
     imports: [
         TypeOrmModule.forFeature([Device]),
-        ClientsModule.registerAsync([
-            {
-                name: 'MQTT_CLIENT',
-                imports: [ConfigModule],
-                useFactory: async (configService: ConfigService) => ({
-                    transport: Transport.MQTT,
-                    options: {
-                        url: configService.get('MQTT_URL') || 'mqtt://127.0.0.1:1883',
-                        username: configService.get('MQTT_USERNAME'),
-                        password: configService.get('MQTT_PASSWORD'),
-                    },
-                }),
-                inject: [ConfigService],
-            },
-        ]),
+        forwardRef(() => MqttModule),
     ],
     controllers: [DevicesController],
     providers: [DevicesService],

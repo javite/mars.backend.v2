@@ -4,25 +4,30 @@ import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
 import { Roles } from '../auth/decorators/roles.decorator';
 import { UserRole } from '../users/entities/user-role.enum';
-import { ClientProxy } from '@nestjs/microservices';
+import { MqttService } from '../mqtt/mqtt.service';
 
 @Controller('devices')
 @UseGuards(JwtAuthGuard)
 export class DevicesController {
     constructor(
         private devicesService: DevicesService,
-        @Inject('MQTT_CLIENT') private client: ClientProxy,
+        private mqttService: MqttService,
     ) { }
 
     @Post(':id/command')
     async sendCommand(@Param('id') deviceId: string, @Body() body: any, @Request() req: any) {
         const userId = req.user.userId;
-        const topic = `mars/${userId}/device/${deviceId}/command`;
+        const topic = `mars/${userId}/device/${deviceId}/status`;
+        const responseTopic = `mars/devices/${deviceId}/data`;
 
-        console.log(`Sending command to ${topic}`, body);
-        this.client.emit(topic, body);
+        console.log(`Sending command to ${topic} and waiting for response on ${responseTopic}`, body);
 
-        return { success: true, topic, command: body };
+        try {
+            const response = await this.mqttService.publishToTopicAndWaitForMessage(topic, body, responseTopic, 5000);
+            return { success: true, response };
+        } catch (error) {
+            return { success: false, error: error.message };
+        }
     }
 
     @Post()

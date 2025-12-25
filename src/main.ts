@@ -37,4 +37,4 @@ async function bootstrap() {
   console.log(`HTTP API listening on port: ${port}`);
   console.log(`MQTT Microservice listening on port: 1883`);
 }
-bootstrap();
+bootstrap(); 
