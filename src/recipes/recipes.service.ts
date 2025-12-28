@@ -25,7 +25,10 @@ export class RecipesService {
     }
 
     async update(id: string, updateData: Partial<Recipe>) {
-        await this.recipesRepository.update(id, updateData);
+        const result = await this.recipesRepository.update(id, updateData);
+        if (result.affected === 0) {
+            throw new NotFoundException(`Recipe with ID ${id} not found`);
+        }
         return this.findOne(id);
     }
 
