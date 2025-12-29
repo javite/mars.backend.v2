@@ -33,6 +33,14 @@ async function bootstrap() {
   }).catch((err) => {
     console.error('MQTT microservice failed to start:', err?.message || err);
   });
+
+  app.enableCors({
+    origin: [
+      'http://localhost:8100'
+    ],
+    credentials: true,
+  });
+
 }
 
 bootstrap();
