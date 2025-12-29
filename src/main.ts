@@ -13,6 +13,13 @@ async function bootstrap() {
 
   const configService = app.get(ConfigService);
 
+  app.enableCors({
+    origin: [
+      'http://localhost:8100'
+    ],
+    credentials: true,
+  });
+
   // 1) HTTP primero
   const port = Number(configService.get('PORT') ?? process.env.PORT ?? 3000);
   await app.listen(port, '0.0.0.0');
@@ -34,12 +41,7 @@ async function bootstrap() {
     console.error('MQTT microservice failed to start:', err?.message || err);
   });
 
-  app.enableCors({
-    origin: [
-      'http://localhost:8100'
-    ],
-    credentials: true,
-  });
+
 
 }
 
