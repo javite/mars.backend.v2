@@ -8,6 +8,8 @@ import {
   Request,
   Query,
   Inject,
+  Delete,
+  Patch,
 } from '@nestjs/common';
 import { DevicesService } from './devices.service';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
@@ -26,13 +28,17 @@ export class DevicesController {
 
   @Get(':id/getLocalData')
   async getLocalData(@Param('id') deviceId: string, @Request() req: any) {
+    const device = await this.devicesService.findOne(deviceId);
+    if (!device) {
+      return { error: 'Device not found' };
+    }
+    const serial_number = device.serial_number;
     const userId = req.user.userId;
-    const topic = `mars/${userId}/device/${deviceId}/status`;
-    const responseTopic = `mars/devices/${deviceId}/data`;
+    const topic = `mars/${userId}/device/${serial_number}/status`;
+    const responseTopic = `mars/devices/${serial_number}/data`;
     const body = {
       cmd: 'getLocalData',
     };
-    // console.log(`Sending command to ${topic} and waiting for response on ${responseTopic}`, body);
 
     try {
       const response = await this.mqttService.publishToTopicAndWaitForMessage(
@@ -79,5 +85,15 @@ export class DevicesController {
   @Get(':id')
   async findOne(@Param('id') id: string) {
     return this.devicesService.findOne(id);
+  }
+
+  @Patch(':id')
+  async update(@Param('id') id: string, @Body() body: any) {
+    return this.devicesService.update(id, body);
+  }
+
+  @Delete(':id')
+  async remove(@Param('id') id: string) {
+    return this.devicesService.remove(id);
   }
 }

@@ -18,8 +18,21 @@ export class DevicesService {
     return this.devicesRepository.find({ where: { ownerId } });
   }
 
-  async findOne(macAddress: string) {
-    return this.devicesRepository.findOneBy({ macAddress });
+  async findOne(id: string) {
+    return this.devicesRepository.findOneBy({ id });
+  }
+
+  async update(id: string, updateDeviceDto: Partial<Device>) {
+    await this.devicesRepository.update(id, updateDeviceDto);
+    return this.findOne(id);
+  }
+
+  async remove(id: string) {
+    const device = await this.findOne(id);
+    if (!device) {
+      throw new NotFoundException(`Device with ID ${id} not found`);
+    }
+    return this.devicesRepository.delete(id);
   }
 
   async updateStatus(macAddress: string, status: string) {
