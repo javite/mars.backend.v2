@@ -5,4 +5,7 @@ export class AppService {
   getHello(): string {
     return 'Hello World!';
   }
+  wai(): any {
+    return { conn: "cloud" };
+  }
 }
