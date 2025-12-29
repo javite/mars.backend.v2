@@ -14,12 +14,14 @@ export class DevicesController {
         private mqttService: MqttService,
     ) { }
 
-    @Post(':id/command')
-    async sendCommand(@Param('id') deviceId: string, @Body() body: any, @Request() req: any) {
+    @Get(':id/getLocalData')
+    async getLocalData(@Param('id') deviceId: string, @Request() req: any) {
         const userId = req.user.userId;
         const topic = `mars/${userId}/device/${deviceId}/status`;
         const responseTopic = `mars/devices/${deviceId}/data`;
-
+        const body = {
+            cmd: "sendLocalData"
+        };
         console.log(`Sending command to ${topic} and waiting for response on ${responseTopic}`, body);
 
         try {
