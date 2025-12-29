@@ -1,25 +1,49 @@
-import { Entity, PrimaryColumn, Column, ManyToOne, JoinColumn } from 'typeorm';
+import {
+  Entity,
+  Column,
+  ManyToOne,
+  JoinColumn,
+  PrimaryGeneratedColumn,
+} from 'typeorm';
 import { User } from '../../users/entities/user.entity';
 
 @Entity('devices')
 export class Device {
-    @PrimaryColumn() // MAC address
-    macAddress: string;
+  @PrimaryGeneratedColumn('uuid')
+  id: string;
 
-    @Column({ nullable: true })
-    name: string;
+  @Column({ unique: true, nullable: false })
+  macAddress: string;
 
-    @Column()
-    ownerId: string;
+  @Column({ nullable: true })
+  name: string;
 
-    @ManyToOne(() => User)
-    @JoinColumn({ name: 'ownerId' })
-    owner: User;
+  @Column()
+  ownerId: string;
 
-    @Column({ default: 'offline' })
-    status: string;
+  @ManyToOne(() => User)
+  @JoinColumn({ name: 'ownerId' })
+  owner: User;
 
-    // Add verification token for claiming flow if needed
-    @Column({ nullable: true })
-    verifyToken: string;
+  @Column({ default: 'offline' })
+  status: string;
+
+  @Column({ nullable: true })
+  current_program_id: string;
+
+  @Column({ nullable: true })
+  model: string;
+
+  @Column({ nullable: true })
+  version: string;
+
+  @Column({ nullable: true })
+  firmware_version: string;
+
+  @Column({ unique: true, nullable: false })
+  serial_number: string;
+
+  // Add verification token for claiming flow if needed
+  @Column({ nullable: true })
+  verifyToken: string;
 }
