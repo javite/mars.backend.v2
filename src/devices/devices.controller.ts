@@ -26,9 +26,9 @@ export class DevicesController {
 
         try {
             const response = await this.mqttService.publishToTopicAndWaitForMessage(topic, body, responseTopic, 5000);
-            return { success: true, response };
+            return response;
         } catch (error) {
-            return { success: false, error: error.message };
+            return error;
         }
     }
 
