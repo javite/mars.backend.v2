@@ -40,7 +40,7 @@ export class Device {
   @Column({ nullable: true })
   firmware_version: string;
 
-  @Column({ unique: true, nullable: false })
+  @Column({ unique: true, nullable: true })
   serial_number: string;
 
   // Add verification token for claiming flow if needed
