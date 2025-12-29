@@ -20,7 +20,7 @@ export class DevicesController {
         const topic = `mars/${userId}/device/${deviceId}/status`;
         const responseTopic = `mars/devices/${deviceId}/data`;
         const body = {
-            cmd: "sendLocalData"
+            cmd: "getLocalData"
         };
         console.log(`Sending command to ${topic} and waiting for response on ${responseTopic}`, body);
 
