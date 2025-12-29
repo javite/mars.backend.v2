@@ -22,7 +22,7 @@ export class DevicesController {
         const body = {
             cmd: "getLocalData"
         };
-        console.log(`Sending command to ${topic} and waiting for response on ${responseTopic}`, body);
+        // console.log(`Sending command to ${topic} and waiting for response on ${responseTopic}`, body);
 
         try {
             const response = await this.mqttService.publishToTopicAndWaitForMessage(topic, body, responseTopic, 5000);

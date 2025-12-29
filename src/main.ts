@@ -41,8 +41,6 @@ async function bootstrap() {
     console.error('MQTT microservice failed to start:', err?.message || err);
   });
 
-
-
 }
 
 bootstrap();
