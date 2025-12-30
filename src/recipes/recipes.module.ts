@@ -5,13 +5,15 @@ import { RecipesService } from './recipes.service';
 import { RecipesController } from './recipes.controller';
 import { forwardRef } from '@nestjs/common';
 import { MqttModule } from '../mqtt/mqtt.module';
+import { DevicesModule } from '../devices/devices.module';
 
 @Module({
-    imports: [
-        TypeOrmModule.forFeature([Recipe]),
-        forwardRef(() => MqttModule),
-    ],
-    controllers: [RecipesController],
-    providers: [RecipesService],
+  imports: [
+    TypeOrmModule.forFeature([Recipe]),
+    forwardRef(() => MqttModule),
+    DevicesModule,
+  ],
+  controllers: [RecipesController],
+  providers: [RecipesService],
 })
-export class RecipesModule { }
+export class RecipesModule {}
