@@ -18,8 +18,8 @@ export class DevicesService {
     return this.devicesRepository.find({ where: { ownerId } });
   }
 
-  async findOne(serial_number: string) {
-    return this.devicesRepository.findOneBy({ serial_number });
+  async findOne(id: string) {
+    return this.devicesRepository.findOneBy({ id });
   }
 
   async update(id: string, updateDeviceDto: Partial<Device>) {

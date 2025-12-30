@@ -27,8 +27,8 @@ export class DevicesController {
   ) {}
 
   @Get(':id/getLocalData')
-  async getLocalData(@Param('id') deviceId: string, @Request() req: any) {
-    const device = await this.devicesService.findOne(deviceId);
+  async getLocalData(@Param('id') id: string, @Request() req: any) {
+    const device = await this.devicesService.findOne(id);
     if (!device) {
       return { error: 'Device not found' };
     }
