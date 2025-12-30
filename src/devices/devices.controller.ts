@@ -28,16 +28,43 @@ export class DevicesController {
 
   @Get(':id/getLocalData')
   async getLocalData(@Param('id') id: string, @Request() req: any) {
-    const device = await this.devicesService.findOne(id);
+    return this.sendDeviceCommand(id, req.user.userId, 'getLocalData');
+  }
+
+  @Get(':id/getActualValues')
+  async getActualValues(@Param('id') id: string, @Request() req: any) {
+    return this.sendDeviceCommand(id, req.user.userId, 'getActualValues');
+  }
+
+  @Get(':id/getOutputs')
+  async getOutputs(@Param('id') id: string, @Request() req: any) {
+    return this.sendDeviceCommand(id, req.user.userId, 'getOutputs');
+  }
+
+  @Get(':id/getSensors')
+  async getSensors(@Param('id') id: string, @Request() req: any) {
+    return this.sendDeviceCommand(id, req.user.userId, 'getSensors');
+  }
+
+  @Get(':id/getConfig')
+  async getConfig(@Param('id') id: string, @Request() req: any) {
+    return this.sendDeviceCommand(id, req.user.userId, 'getConfig');
+  }
+
+  private async sendDeviceCommand(
+    deviceId: string,
+    userId: string,
+    cmd: string,
+  ) {
+    const device = await this.devicesService.findOne(deviceId);
     if (!device) {
       return { error: 'Device not found' };
     }
     const serial_number = device.serial_number;
-    const userId = req.user.userId;
     const topic = `mars/${userId}/device/${serial_number}/status`;
     const responseTopic = `mars/devices/${serial_number}/data`;
     const body = {
-      cmd: 'getLocalData',
+      cmd: cmd,
     };
 
     try {
