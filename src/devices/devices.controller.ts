@@ -51,6 +51,11 @@ export class DevicesController {
     return this.sendDeviceCommand(id, req.user.userId, 'getConfig');
   }
 
+  @Get(':id/onScanNetwork')
+  async onScanNetwork(@Param('id') id: string, @Request() req: any) {
+    return this.sendDeviceCommand(id, req.user.userId, 'onScanNetwork');
+  }
+
   private async sendDeviceCommand(
     deviceId: string,
     userId: string,
