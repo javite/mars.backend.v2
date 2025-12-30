@@ -1,56 +1,76 @@
-import { Controller, Get, Post, Body, Param, Delete, Patch, UseGuards, Request } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Param,
+  Delete,
+  Patch,
+  UseGuards,
+  Request,
+} from '@nestjs/common';
 import { RecipesService } from './recipes.service';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { MqttService } from '../mqtt/mqtt.service';
+import { DevicesService } from '../devices/devices.service';
 
 @Controller('recipes')
 @UseGuards(JwtAuthGuard)
 export class RecipesController {
-    constructor(
-        private recipesService: RecipesService,
-        private mqttService: MqttService,
-    ) { }
+  constructor(
+    private recipesService: RecipesService,
+    private mqttService: MqttService,
+    private devicesService: DevicesService,
+  ) {}
 
-    @Get(':id/getActualProgram')
-    async getActualProgram(@Param('id') deviceId: string, @Request() req: any) {
-        const userId = req.user.userId;
-        const topic = `mars/${userId}/device/${deviceId}/status`;
-        const responseTopic = `mars/devices/${deviceId}/data`;
-        const body = {
-            cmd: "getActualProgram"
-        };
-        // console.log(`Sending command to ${topic} and waiting for response on ${responseTopic}`, body);
-
-        try {
-            const response = await this.mqttService.publishToTopicAndWaitForMessage(topic, body, responseTopic, 5000);
-            return response;
-        } catch (error) {
-            return error;
-        }
+  @Get(':id/getActualProgram')
+  async getActualProgram(@Param('id') id: string, @Request() req: any) {
+    const device = await this.devicesService.findOne(id);
+    if (!device) {
+      return { error: 'Device not found' };
     }
+    const userId = req.user.userId;
+    const topic = `mars/${userId}/device/${device.serial_number}/status`;
+    const responseTopic = `mars/devices/${device.serial_number}/data`;
+    const body = {
+      cmd: 'getActualProgram',
+    };
 
-    @Post()
-    create(@Body() body: any, @Request() req: any) {
-        return this.recipesService.create({ ...body, ownerId: req.user.userId });
+    try {
+      const response = await this.mqttService.publishToTopicAndWaitForMessage(
+        topic,
+        body,
+        responseTopic,
+        5000,
+      );
+      return response;
+    } catch (error) {
+      return error;
     }
+  }
 
-    @Get()
-    findAll(@Request() req: any) {
-        return this.recipesService.findAllByOwner(req.user.userId);
-    }
+  @Post()
+  create(@Body() body: any, @Request() req: any) {
+    return this.recipesService.create({ ...body, ownerId: req.user.userId });
+  }
 
-    @Get(':id')
-    findOne(@Param('id') id: string) {
-        return this.recipesService.findOne(id);
-    }
+  @Get()
+  findAll(@Request() req: any) {
+    return this.recipesService.findAllByOwner(req.user.userId);
+  }
 
-    @Patch(':id')
-    update(@Param('id') id: string, @Body() body: any) {
-        return this.recipesService.update(id, body);
-    }
+  @Get(':id')
+  findOne(@Param('id') id: string) {
+    return this.recipesService.findOne(id);
+  }
 
-    @Delete(':id')
-    remove(@Param('id') id: string) {
-        return this.recipesService.remove(id);
-    }
+  @Patch(':id')
+  update(@Param('id') id: string, @Body() body: any) {
+    return this.recipesService.update(id, body);
+  }
+
+  @Delete(':id')
+  remove(@Param('id') id: string) {
+    return this.recipesService.remove(id);
+  }
 }
