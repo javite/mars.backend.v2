@@ -28,32 +28,66 @@ export class DevicesController {
 
   @Get(':id/getLocalData')
   async getLocalData(@Param('id') id: string, @Request() req: any) {
-    return this.sendDeviceCommand(id, req.user.userId, 'getLocalData');
+    return this.getOrFetchData(id, req.user.userId, 'state', 'getLocalData');
   }
 
   @Get(':id/getActualValues')
   async getActualValues(@Param('id') id: string, @Request() req: any) {
-    return this.sendDeviceCommand(id, req.user.userId, 'getActualValues');
+    return this.getOrFetchData(id, req.user.userId, 'state', 'getActualValues');
   }
 
   @Get(':id/getOutputs')
   async getOutputs(@Param('id') id: string, @Request() req: any) {
-    return this.sendDeviceCommand(id, req.user.userId, 'getOutputs');
+    return this.getOrFetchData(id, req.user.userId, 'outputs', 'getOutputs');
   }
 
   @Get(':id/getSensors')
   async getSensors(@Param('id') id: string, @Request() req: any) {
-    return this.sendDeviceCommand(id, req.user.userId, 'getSensors');
+    return this.getOrFetchData(id, req.user.userId, 'sensors', 'getSensors');
   }
 
   @Get(':id/getConfig')
   async getConfig(@Param('id') id: string, @Request() req: any) {
-    return this.sendDeviceCommand(id, req.user.userId, 'getConfig');
+    return this.getOrFetchData(id, req.user.userId, 'config', 'getConfig');
   }
 
   @Get(':id/scanNetwork')
   async onScanNetwork(@Param('id') id: string, @Request() req: any) {
+    // Scan network is an action, always use tunnel
     return this.sendDeviceCommand(id, req.user.userId, 'scanNetwork');
+  }
+
+  private async getOrFetchData(
+    deviceId: string,
+    userId: string,
+    dbField: 'state' | 'config' | 'sensors' | 'outputs',
+    cmd: string,
+  ) {
+    const device = await this.devicesService.findOne(deviceId);
+    if (!device) {
+      return { error: 'Device not found' };
+    }
+
+    // Check freshness
+    const now = new Date().getTime();
+    const lastUpdate = device.last_state_update
+      ? device.last_state_update.getTime()
+      : 0;
+    const diff = now - lastUpdate;
+    // TODO: implement freshness check
+    let isFresh = false;
+    if (dbField === 'state') {
+      isFresh = diff < 10000;
+    } else {
+      isFresh = !!device[dbField];
+    }
+
+    if (isFresh && device[dbField]) {
+      return device[dbField];
+    }
+
+    // Fallback: Tunnel
+    return this.sendDeviceCommand(deviceId, userId, cmd);
   }
 
   private async sendDeviceCommand(

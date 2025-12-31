@@ -6,6 +6,7 @@ import {
   PrimaryGeneratedColumn,
 } from 'typeorm';
 import { User } from '../../users/entities/user.entity';
+import { Recipe } from 'src/recipes/entities/recipe.entity';
 
 @Entity('devices')
 export class Device {
@@ -46,4 +47,29 @@ export class Device {
   // Add verification token for claiming flow if needed
   @Column({ nullable: true })
   verifyToken: string;
+
+  @Column({ type: 'jsonb', nullable: true })
+  config: any;
+
+  @Column({ type: 'jsonb', nullable: true })
+  sensors: any;
+
+  @Column({ type: 'jsonb', nullable: true })
+  outputs: any;
+
+  @Column({ type: 'jsonb', nullable: true })
+  state: any;
+
+  @ManyToOne(() => Recipe)
+  @JoinColumn({ name: 'active_recipe_id' })
+  active_recipe: Recipe;
+
+  @Column({ nullable: true })
+  active_recipe_id: string;
+
+  @Column({ nullable: true })
+  last_seen: Date;
+
+  @Column({ nullable: true })
+  last_state_update: Date;
 }
