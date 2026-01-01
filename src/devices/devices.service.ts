@@ -1,41 +1,14 @@
-import {
-  Injectable,
-  NotFoundException,
-  OnModuleInit,
-  Inject,
-  forwardRef,
-} from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Device } from './entities/device.entity';
-import { MqttService } from '../mqtt/mqtt.service';
 
 @Injectable()
-export class DevicesService implements OnModuleInit {
+export class DevicesService {
   constructor(
     @InjectRepository(Device)
     private devicesRepository: Repository<Device>,
-    @Inject(forwardRef(() => MqttService))
-    private mqttService: MqttService,
   ) {}
-
-  onModuleInit() {
-    this.mqttService.subscribe('mars/+/device/+/+', (topic, payload) => {
-      const parts = topic.split('/');
-      // Topic format: mars/{userId}/device/{serial}/{type}
-      // parts[0] = mars
-      // parts[1] = userId
-      // parts[2] = device
-      // parts[3] = serial
-      // parts[4] = type (status, config, etc)
-
-      if (parts.length >= 5 && parts[2] === 'device') {
-        const serial = parts[3];
-        const type = parts[4];
-        this.updateFromMqtt(serial, type, payload);
-      }
-    });
-  }
 
   async create(deviceData: Partial<Device>) {
     return this.devicesRepository.save(deviceData);
@@ -76,9 +49,9 @@ export class DevicesService implements OnModuleInit {
     });
   }
 
-  async updateFromMqtt(macAddress: string, type: string, payload: any) {
+  async updateFromMqtt(serial_number: string, type: string, payload: any) {
     const device = await this.devicesRepository.findOne({
-      where: { macAddress },
+      where: { serial_number },
     });
     if (!device) return;
 
@@ -95,7 +68,7 @@ export class DevicesService implements OnModuleInit {
       device.outputs = payload;
     } else if (type === 'active_recipe') {
       // TODO: enviar recipeId o similar
-      device.active_recipe_id = payload.recipeId || payload.id;
+      // device.active_recipe_id = payload.recipeId || payload.id;
     }
 
     await this.devicesRepository.save(device);

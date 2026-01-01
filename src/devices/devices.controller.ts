@@ -28,27 +28,22 @@ export class DevicesController {
 
   @Get(':id/getLocalData')
   async getLocalData(@Param('id') id: string, @Request() req: any) {
-    return this.getOrFetchData(id, req.user.userId, 'state', 'getLocalData');
-  }
-
-  @Get(':id/getActualValues')
-  async getActualValues(@Param('id') id: string, @Request() req: any) {
-    return this.getOrFetchData(id, req.user.userId, 'state', 'getActualValues');
+    return this.getOrFetchData(id, req.user.userId, 'state', 'status');
   }
 
   @Get(':id/getOutputs')
   async getOutputs(@Param('id') id: string, @Request() req: any) {
-    return this.getOrFetchData(id, req.user.userId, 'outputs', 'getOutputs');
+    return this.getOrFetchData(id, req.user.userId, 'outputs', 'outputs');
   }
 
   @Get(':id/getSensors')
   async getSensors(@Param('id') id: string, @Request() req: any) {
-    return this.getOrFetchData(id, req.user.userId, 'sensors', 'getSensors');
+    return this.getOrFetchData(id, req.user.userId, 'sensors', 'sensors');
   }
 
   @Get(':id/getConfig')
   async getConfig(@Param('id') id: string, @Request() req: any) {
-    return this.getOrFetchData(id, req.user.userId, 'config', 'getConfig');
+    return this.getOrFetchData(id, req.user.userId, 'config', 'config');
   }
 
   @Get(':id/scanNetwork')
@@ -100,8 +95,8 @@ export class DevicesController {
       return { error: 'Device not found' };
     }
     const serial_number = device.serial_number;
-    const topic = `mars/${userId}/device/${serial_number}/status`;
-    const responseTopic = `mars/devices/${serial_number}/data`;
+    const responseTopic = `mars/${userId}/device/${serial_number}/${cmd}`;
+    const topic = `mars/devices/${serial_number}/data`;
     const body = {
       cmd: cmd,
     };
