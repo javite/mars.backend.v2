@@ -30,7 +30,7 @@ export class RecipesController {
       return { error: 'Device not found' };
     }
     const userId = req.user.userId;
-    const topic = `mars/${userId}/device/${device.serial_number}/status`;
+    const topic = `mars/${userId}/device/${device.serial_number}/getActualProgram`;
     const responseTopic = `mars/devices/${device.serial_number}/data`;
     const body = {
       cmd: 'getActualProgram',
