@@ -66,7 +66,8 @@ export class DevicesService {
       device.sensors = payload;
     } else if (type === 'outputs') {
       device.outputs = payload;
-    } else if (type === 'active_recipe') {
+    } else if (type === 'actualProgram') {
+      console.log('Actual program received:', payload);
       // TODO: enviar recipeId o similar
       // device.active_recipe_id = payload.recipeId || payload.id;
     }
