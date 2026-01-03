@@ -1,21 +1,55 @@
-import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, JoinColumn } from 'typeorm';
+import {
+  Entity,
+  PrimaryGeneratedColumn,
+  Column,
+  ManyToOne,
+  JoinColumn,
+  ManyToMany,
+} from 'typeorm';
 import { User } from '../../users/entities/user.entity';
+import { Device } from '../../devices/entities/device.entity';
 
 @Entity('recipes')
 export class Recipe {
-    @PrimaryGeneratedColumn('uuid')
-    id: string;
+  @PrimaryGeneratedColumn('uuid')
+  id: string;
 
-    @Column()
-    name: string;
+  @Column()
+  name: string;
 
-    @Column('jsonb', { nullable: true })
-    content: any;
+  @Column({ nullable: true })
+  description: string;
 
-    @Column()
-    ownerId: string;
+  @Column({ nullable: true })
+  species: string;
 
-    @ManyToOne(() => User)
-    @JoinColumn({ name: 'ownerId' })
-    owner: User;
+  @Column({ type: 'int', default: 0 })
+  state: number;
+
+  @Column('jsonb', { nullable: true })
+  recipe: any;
+
+  @Column({
+    type: 'bigint',
+    nullable: true,
+    transformer: { to: (value) => value, from: (value) => Number(value) },
+  })
+  created_at: number;
+
+  @Column({
+    type: 'bigint',
+    nullable: true,
+    transformer: { to: (value) => value, from: (value) => Number(value) },
+  })
+  updated_at: number;
+
+  @Column()
+  ownerId: string;
+
+  @ManyToOne(() => User)
+  @JoinColumn({ name: 'ownerId' })
+  owner: User;
+
+  @ManyToMany(() => Device, (device) => device.recipes)
+  devices: Device[];
 }

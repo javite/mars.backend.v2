@@ -4,6 +4,8 @@ import {
   ManyToOne,
   JoinColumn,
   PrimaryGeneratedColumn,
+  ManyToMany,
+  JoinTable,
 } from 'typeorm';
 import { User } from '../../users/entities/user.entity';
 import { Recipe } from 'src/recipes/entities/recipe.entity';
@@ -63,6 +65,10 @@ export class Device {
   @ManyToOne(() => Recipe)
   @JoinColumn({ name: 'active_recipe_id' })
   active_recipe: Recipe;
+
+  @ManyToMany(() => Recipe, (recipe) => recipe.devices)
+  @JoinTable()
+  recipes: Recipe[];
 
   @Column({ nullable: true })
   active_recipe_id: string;

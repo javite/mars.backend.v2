@@ -25,6 +25,13 @@ export class DevicesService {
     });
   }
 
+  async findOneBySerial(serial_number: string) {
+    return this.devicesRepository.findOne({
+      where: { serial_number },
+      relations: ['active_recipe'],
+    });
+  }
+
   async update(id: string, updateDeviceDto: Partial<Device>) {
     await this.devicesRepository.update(id, updateDeviceDto);
     return this.findOne(id);
@@ -49,7 +56,30 @@ export class DevicesService {
     });
   }
 
-  async updateFromMqtt(serial_number: string, type: string, payload: any) {
+  async addRecipe(deviceId: string, recipe: any) {
+    const device = await this.devicesRepository.findOne({
+      where: { id: deviceId },
+      relations: ['recipes'],
+    });
+
+    if (!device) {
+      throw new NotFoundException(`Device with ID ${deviceId} not found`);
+    }
+
+    // Check if recipe already linked to avoid duplicates in array
+    const exists = device.recipes.some((r) => r.id === recipe.id);
+    if (!exists) {
+      device.recipes.push(recipe);
+      await this.devicesRepository.save(device);
+      console.log(`Linked recipe ${recipe.id} to device ${deviceId}`);
+    }
+  }
+
+  async updateDeviceFromMqtt(
+    serial_number: string,
+    type: string,
+    payload: any,
+  ) {
     const device = await this.devicesRepository.findOne({
       where: { serial_number },
     });
@@ -67,9 +97,7 @@ export class DevicesService {
     } else if (type === 'outputs') {
       device.outputs = payload;
     } else if (type === 'actualProgramID') {
-      console.log('Actual program ID received:', payload);
-      // TODO: enviar recipeId o similar
-      // device.active_recipe_id = payload.recipeId || payload.id;
+      // Handled by MqttController -> RecipesService now
     }
 
     await this.devicesRepository.save(device);

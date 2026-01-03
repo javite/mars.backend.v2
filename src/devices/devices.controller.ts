@@ -100,7 +100,7 @@ export class DevicesController {
     const body = {
       cmd: cmd,
     };
-
+    console.log('Sending from devices:', topic, body);
     try {
       const response = await this.mqttService.publishToTopicAndWaitForMessage(
         topic,

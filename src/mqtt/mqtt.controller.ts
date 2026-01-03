@@ -6,26 +6,53 @@ import {
   Payload,
 } from '@nestjs/microservices';
 import { DevicesService } from '../devices/devices.service';
+import { RecipesService } from '../recipes/recipes.service';
 
 @Controller()
 export class MqttController {
   constructor(
     @Inject(forwardRef(() => DevicesService))
     private devicesService: DevicesService,
+    @Inject(forwardRef(() => RecipesService))
+    private recipesService: RecipesService,
   ) {}
 
   @MessagePattern('mars/+/device/+/+')
-  handleWildcard(@Payload() data: any, @Ctx() context: MqttContext) {
+  async handleWildcard(@Payload() data: any, @Ctx() context: MqttContext) {
     const topic = context.getTopic();
-    // Example topic: mars/user123/device/dev001/status
+    // mars/userId/device/serialNumber/type
+    console.log('Received MQTT message on topic:', topic);
     const parts = topic.split('/');
+    if (parts.length < 5) return;
 
-    if (parts.length >= 5 && parts[2] === 'device') {
-      const serial = parts[3];
-      const type = parts[4];
-      this.devicesService.updateFromMqtt(serial, type, data);
-    } else {
-      console.log(`[MQTT] Received on ${topic}:`, data);
+    const userId = parts[1];
+    const serial = parts[3];
+    const type = parts[4];
+
+    // Exclude actualProgram (response topic)
+    if (type === 'actualProgram') return;
+
+    // Verify ownership for ALL messages to prevent stale data processing
+    // This is especially critical for actualProgramID which triggers recipe sync
+    const device = await this.devicesService.findOneBySerial(serial);
+
+    // If device doesn't exist or owner mismatch, ignore.
+    if (!device) {
+      // console.log(`Device ${serial} not found, ignoring message on ${topic}`);
+      return;
+    }
+
+    if (device.ownerId !== userId) {
+      if (type === 'actualProgramID') {
+        console.log(
+          `[MQTT] Ignoring stale actualProgramID for ${serial} on topic ${topic} (owner mismatch)`,
+        );
+      }
+      return;
+    }
+
+    if (type === 'actualProgramID') {
+      this.recipesService.updateRecipeFromMqtt(serial, data);
     }
   }
 }

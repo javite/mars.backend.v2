@@ -3,14 +3,16 @@ import { MqttService } from './mqtt.service';
 import { DevicesModule } from '../devices/devices.module';
 import { MqttController } from './mqtt.controller';
 import { ConfigModule } from '@nestjs/config';
+import { RecipesModule } from '../recipes/recipes.module';
 
 @Module({
-    imports: [
-        ConfigModule,
-        forwardRef(() => DevicesModule),
-    ],
-    controllers: [MqttController],
-    providers: [MqttService],
-    exports: [MqttService],
+  imports: [
+    ConfigModule,
+    forwardRef(() => DevicesModule),
+    forwardRef(() => RecipesModule),
+  ],
+  controllers: [MqttController],
+  providers: [MqttService],
+  exports: [MqttService],
 })
-export class MqttModule { }
+export class MqttModule {}

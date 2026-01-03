@@ -11,9 +11,10 @@ import { DevicesModule } from '../devices/devices.module';
   imports: [
     TypeOrmModule.forFeature([Recipe]),
     forwardRef(() => MqttModule),
-    DevicesModule,
+    forwardRef(() => DevicesModule),
   ],
   controllers: [RecipesController],
   providers: [RecipesService],
+  exports: [RecipesService],
 })
 export class RecipesModule {}

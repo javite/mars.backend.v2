@@ -131,34 +131,6 @@ export class MqttService implements OnModuleInit {
       } else {
         this.logger.log(`Subscribed to ${topic}`);
         this.client.on('message', (msgTopic, message) => {
-          // Simple topic matching check (can be improved for wildcards)
-          // For now, let's assume if it matches the pattern we care about, we trigger
-          // But standard mqtt.js 'message' event fires for ALL messages.
-          // We need to filter based on subscription? mqtt.js handles routing if we use a router, but here we are raw.
-
-          // Actually, typical pattern with mqtt.js is global message handler + router.
-          // Or separate clients.
-          // Since we have one client, we need to filter.
-
-          // A simple regex match for the wildcard topic:
-          // Topic: mars/+/device/+/+
-          // We can rely on the mqtt broker sending us only what we subscribed to.
-          // But if we have multiple subscriptions, we receive all of them in 'message'.
-
-          // For simplicity in this project context:
-          // We will match the parsed topic against the callback's interest roughly or just pass everything to the callback
-          // and let the callback decide?
-          // Better: The callback is registered for a topic. The 'message' event is global.
-          // We should check if the msgTopic matches the subscription topic.
-          // Since we use wildcards, we can use `mqtt-match` library or simple split check.
-
-          // Given constraints, I'll implement a basic check or just delegate to callback if it's broad.
-          // Actually, if I add multiple listeners they will all fire for every message.
-          // Let's implement a simple router map: topic -> [callbacks]
-
-          // But for this specific task, just exposing the client or a simple "onMessage" might be enough.
-          // Let's add 'subscribeToTopic' which registers a handler
-
           if (this.mqttMatch(topic, msgTopic)) {
             try {
               const payload = JSON.parse(message.toString());
