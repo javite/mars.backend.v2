@@ -54,8 +54,8 @@ export class RecipesController {
     return this.recipesService.create({ ...body, ownerId: req.user.userId });
   }
 
-  @Get('/getPrograms')
-  findAll(@Request() req: any) {
+  @Get(':id/getPrograms')
+  findAll(@Param('id') id: string, @Request() req: any) {
     return this.recipesService.findAllByOwner(req.user.userId);
   }
 
