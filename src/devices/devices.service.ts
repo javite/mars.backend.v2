@@ -86,10 +86,12 @@ export class DevicesService {
     if (!device) return;
 
     device.last_seen = new Date();
+    // console.log(`Updating device ${serial_number} from MQTT type: ${type}`);
 
     if (type === 'status') {
       device.state = payload;
       device.last_state_update = new Date();
+      // console.log(`Updated status and last_state_update for ${serial_number}`);
     } else if (type === 'config') {
       device.config = payload;
     } else if (type === 'sensors') {
@@ -100,6 +102,9 @@ export class DevicesService {
       // Handled by MqttController -> RecipesService now
     }
 
-    await this.devicesRepository.save(device);
+    const saved = await this.devicesRepository.save(device);
+    // console.log(
+    //   `Device saved. Last seen: ${saved.last_seen}, Last status: ${saved.last_state_update}`,
+    // );
   }
 }

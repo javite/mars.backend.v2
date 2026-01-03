@@ -203,8 +203,6 @@ export class RecipesService {
       });
       // Also add to history (Many-to-Many)
       await this.devicesService.addRecipe(device.id, recipeToLink);
-
-      console.log('Device updated with new active recipe');
     } catch (error) {
       console.error('Failed to fetch/save recipe from device:', error.message);
     }

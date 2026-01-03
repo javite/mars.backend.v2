@@ -63,21 +63,23 @@ export class DevicesController {
       return { error: 'Device not found' };
     }
 
-    // Check freshness
+    // Check freshness (15 seconds)
     const now = new Date().getTime();
-    const lastUpdate = device.last_state_update
-      ? device.last_state_update.getTime()
-      : 0;
-    const diff = now - lastUpdate;
-    // TODO: implement freshness check
-    let isFresh = false;
-    if (dbField === 'state') {
-      isFresh = diff < 10000;
-    } else {
-      isFresh = !!device[dbField];
+    let lastUpdate = 0;
+
+    if (dbField === 'state' && device.last_state_update) {
+      lastUpdate = device.last_state_update.getTime();
+    } else if (device.last_seen) {
+      lastUpdate = device.last_seen.getTime();
     }
 
+    const diff = now - lastUpdate;
+    const isFresh = diff < 15000; // 15 seconds
+
     if (isFresh && device[dbField]) {
+      // console.log(
+      //   `Returning cached ${dbField} for device ${device.serial_number}`,
+      // );
       return device[dbField];
     }
 

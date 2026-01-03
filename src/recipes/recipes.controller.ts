@@ -29,6 +29,20 @@ export class RecipesController {
     if (!device) {
       return { error: 'Device not found' };
     }
+
+    // Check freshness: 60 seconds (60000 ms)
+    const now = new Date().getTime();
+    const lastSeen = device.last_seen ? device.last_seen.getTime() : 0;
+    const isFresh = now - lastSeen < 60000;
+
+    if (isFresh && device.active_recipe) {
+      // console.log(
+      //   'Returning cached active recipe for device',
+      //   device.serial_number,
+      // );
+      return device.active_recipe.recipe;
+    }
+
     const userId = req.user.userId;
     const responseTopic = `mars/${userId}/device/${device.serial_number}/actualProgram`;
     const topic = `mars/devices/${device.serial_number}/data`;

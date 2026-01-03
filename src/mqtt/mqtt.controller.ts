@@ -21,7 +21,6 @@ export class MqttController {
   async handleWildcard(@Payload() data: any, @Ctx() context: MqttContext) {
     const topic = context.getTopic();
     // mars/userId/device/serialNumber/type
-    console.log('Received MQTT message on topic:', topic);
     const parts = topic.split('/');
     if (parts.length < 5) return;
 
@@ -53,6 +52,8 @@ export class MqttController {
 
     if (type === 'actualProgramID') {
       this.recipesService.updateRecipeFromMqtt(serial, data);
+    } else {
+      this.devicesService.updateDeviceFromMqtt(serial, type, data);
     }
   }
 }
