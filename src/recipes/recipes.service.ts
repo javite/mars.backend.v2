@@ -27,8 +27,12 @@ export class RecipesService {
     return this.recipesRepository.save(recipeData);
   }
 
-  findAllByOwner(ownerId: string) {
-    return this.recipesRepository.find({ where: { ownerId } });
+  async findAllByOwner(ownerId: string) {
+    const recipes = await this.recipesRepository.find({ where: { ownerId } });
+    return recipes.map((r) => ({
+      file_name: `/${r.name}.pro`,
+      recipe: r.recipe,
+    }));
   }
 
   async findOne(id: string) {
